@@ -28,7 +28,7 @@ public class BuildingController {
         }
     }
 
-    @GetMapping
+    @GetMapping("/getall")
     public ResponseEntity<List<Building>> getAllBuildings() {
         log.info("请求拿到所有建筑物列表");
         List<Building> buildings = buildingService.list();
