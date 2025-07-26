@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 public class UserRole {
     @TableField("user_id")
     private Long userId;
+    
     @TableField("role_id")
     private Long roleId;
 }

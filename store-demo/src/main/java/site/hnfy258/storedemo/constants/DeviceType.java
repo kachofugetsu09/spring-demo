@@ -5,7 +5,12 @@ public enum DeviceType {
     MOBILE("Mobile");
 
     private final String type;
+    
     DeviceType(String type) {
         this.type = type;
+    }
+    
+    public String getType() {
+        return type;
     }
 }
