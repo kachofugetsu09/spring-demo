@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import site.hnfy258.storedemo.entity.Building;
 import site.hnfy258.storedemo.mapper.BuildingMapper;
 import site.hnfy258.storedemo.service.BuildingService;
@@ -22,6 +23,7 @@ public class BuildingServiceImpl extends ServiceImpl<BuildingMapper, Building> i
     private static final Duration CACHE_TTL = Duration.ofMinutes(30);
 
     @Override
+    @Transactional
     public Building getById(String id) {
         String cacheKey = CACHE_KEY_PREFIX + id;
         

@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kafka Demo 控制台</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .status.running {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.stopped {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .controls {
+            margin: 20px 0;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn-start {
+            background-color: #28a745;
+            color: white;
+        }
+        .btn-stop {
+            background-color: #dc3545;
+            color: white;
+        }
+        .btn-single {
+            background-color: #007bff;
+            color: white;
+        }
+        .btn-refresh {
+            background-color: #6c757d;
+            color: white;
+        }
+        button:hover {
+            opacity: 0.8;
+        }
+        .log {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 10px;
+            height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .acks-selector {
+            margin: 10px 0;
+        }
+        select {
+            padding: 5px;
+            margin: 0 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Kafka Demo 控制台</h1>
+        
+        <div id="status" class="status stopped">
+            状态: 未知
+        </div>
+        
+        <div class="acks-selector">
+            <label for="acksSelect">ACKs 配置:</label>
+            <select id="acksSelect">
+                <option value="0">0 - 不等待确认</option>
+                <option value="1">1 - 等待leader确认</option>
+                <option value="all" selected>all - 等待所有副本确认</option>
+            </select>
+        </div>
+        
+        <div class="controls">
+            <button class="btn-start" onclick="startProducer()">开始发送消息</button>
+            <button class="btn-stop" onclick="stopProducer()">停止发送消息</button>
+            <button class="btn-single" onclick="sendSingle()">发送单条消息</button>
+            <button class="btn-refresh" onclick="refreshStatus()">刷新状态</button>
+        </div>
+        
+        <div class="controls">
+            <button class="btn-single" onclick="getTodayStats()">查看今日统计</button>
+            <button class="btn-single" onclick="checkRedisHealth()">Redis健康检查</button>
+            <input type="text" id="userIdInput" placeholder="输入用户ID" style="padding: 8px; margin: 5px;">
+            <button class="btn-single" onclick="getUserBehaviors()">查看用户行为</button>
+        </div>
+        
+        <h3>操作日志</h3>
+        <div id="log" class="log"></div>
+    </div>
+
+    <script>
+        let logContainer = document.getElementById('log');
+        let statusContainer = document.getElementById('status');
+        
+        function log(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            logContainer.innerHTML += `[${timestamp}] ${message}\n`;
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+        
+        function updateStatus(isProducing, message) {
+            statusContainer.textContent = `状态: ${message}`;
+            statusContainer.className = isProducing ? 'status running' : 'status stopped';
+        }
+        
+        async function makeRequest(url, method = 'GET', params = {}) {
+            try {
+                let fullUrl = url;
+                if (method === 'GET' && Object.keys(params).length > 0) {
+                    const urlParams = new URLSearchParams(params);
+                    fullUrl += '?' + urlParams.toString();
+                }
+                
+                const options = {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                };
+                
+                if (method === 'POST' && Object.keys(params).length > 0) {
+                    const formData = new URLSearchParams(params);
+                    options.body = formData;
+                    options.headers['Content-Type'] = 'application/x-www-form-urlencoded';
+                }
+                
+                const response = await fetch(fullUrl, options);
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                log(`请求失败: ${error.message}`);
+                return { status: 'error', message: error.message };
+            }
+        }
+        
+        async function startProducer() {
+            const acks = document.getElementById('acksSelect').value;
+            log(`开始发送消息，ACKs配置: ${acks}`);
+            
+            const result = await makeRequest('/kafka/start', 'POST', { acks: acks });
+            log(`开始发送结果: ${result.message}`);
+            
+            if (result.status === 'success') {
+                updateStatus(true, '正在发送消息');
+            }
+        }
+        
+        async function stopProducer() {
+            log('停止发送消息...');
+            
+            const result = await makeRequest('/kafka/stop', 'POST');
+            log(`停止发送结果: ${result.message}`);
+            
+            if (result.status === 'success') {
+                updateStatus(false, '已停止发送');
+            }
+        }
+        
+        async function sendSingle() {
+            const acks = document.getElementById('acksSelect').value;
+            log(`发送单条消息，ACKs配置: ${acks}`);
+            
+            const result = await makeRequest('/kafka/send-single', 'POST', { acks: acks });
+            log(`发送单条消息结果: ${result.message}`);
+        }
+        
+        async function refreshStatus() {
+            const result = await makeRequest('/kafka/status');
+            updateStatus(result.isProducing, result.message);
+            log(`状态刷新: ${result.message}`);
+        }
+        
+        // 页面加载时获取初始状态
+        window.onload = function() {
+            log('Kafka Demo 控制台已加载');
+            refreshStatus();
+            
+            // 每5秒自动刷新状态
+            setInterval(refreshStatus, 5000);
+        };
+    </script>
+</body>
+</html>

@@ -27,6 +27,7 @@
     <!-- 子模块列表 -->
     <modules>
         <module>store-demo</module>
+        <module>kafka-demo</module>
     </modules>
 
     <!-- 依赖管理 -->
