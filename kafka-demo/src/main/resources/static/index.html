@@ -117,6 +117,24 @@
             <input type="text" id="userIdInput" placeholder="输入用户ID" style="padding: 8px; margin: 5px;">
             <button class="btn-single" onclick="getUserBehaviors()">查看用户行为</button>
         </div>
+
+        <div class="controls">
+            <h3>🔄 再平衡监控</h3>
+            <button class="btn-single" onclick="getRebalanceStats()">查看再平衡统计</button>
+            <button class="btn-single" onclick="logRebalanceStatus()">输出状态到日志</button>
+            <button class="btn-single" onclick="getRebalanceGuide()">查看演示指南</button>
+        </div>
+
+        <div id="rebalance-info" style="background-color: #e7f3ff; padding: 10px; margin: 10px 0; border-radius: 4px; display: none;">
+            <h4>📖 再平衡演示指南</h4>
+            <ol>
+                <li>当前应用已启动，观察日志中的初始分区分配</li>
+                <li>启动第二个实例: <code>mvn spring-boot:run -Dspring-boot.run.arguments=--server.port=8081</code></li>
+                <li>观察再平衡过程和分区重新分配</li>
+                <li>停止其中一个实例，观察再次再平衡</li>
+                <li>使用脚本监控: <code>./rebalance-demo.sh monitor</code></li>
+            </ol>
+        </div>
         
         <h3>操作日志</h3>
         <div id="log" class="log"></div>
@@ -204,6 +222,37 @@
             log(`状态刷新: ${result.message}`);
         }
         
+        async function getRebalanceStats() {
+            log('获取再平衡统计信息...');
+            const result = await makeRequest('/api/rebalance/stats');
+            if (result.consumerStats) {
+                log(`再平衡统计: ${result.consumerStats}`);
+                log(`再平衡次数: ${result.rebalanceCount}`);
+                log(`消费者实例ID: ${result.consumerInstanceId}`);
+            } else {
+                log('获取再平衡统计失败');
+            }
+        }
+        
+        async function logRebalanceStatus() {
+            log('触发状态日志输出...');
+            const result = await makeRequest('/api/rebalance/log-status', 'POST');
+            if (result.message) {
+                log(`状态日志: ${result.message}`);
+            }
+        }
+        
+        async function getRebalanceGuide() {
+            const guideDiv = document.getElementById('rebalance-info');
+            if (guideDiv.style.display === 'none') {
+                guideDiv.style.display = 'block';
+                log('显示再平衡演示指南');
+            } else {
+                guideDiv.style.display = 'none';
+                log('隐藏再平衡演示指南');
+            }
+        }
+
         // 页面加载时获取初始状态
         window.onload = function() {
             log('Kafka Demo 控制台已加载');

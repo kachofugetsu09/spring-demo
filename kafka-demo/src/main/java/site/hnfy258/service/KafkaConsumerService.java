@@ -32,6 +32,8 @@ public class KafkaConsumerService {
         try {
             long currentCount = autoCommitReceivedCount.incrementAndGet();
 
+
+
             // 解析消息
             UserBehavior userBehavior = objectMapper.readValue(record.value(), UserBehavior.class);
 
@@ -71,6 +73,8 @@ public class KafkaConsumerService {
                 // 批量处理完所有消息后，手动提交偏移量
                 acknowledgment.acknowledge();
                 log.info("Manual-commit Consumer: Acknowledged {} records. Last offset: {}", records.size(), records.get(records.size()-1).offset());
+                //模拟消息积压
+                Thread.sleep(1000);
             }
         } catch (Exception e) {
             log.error("Error processing message in manual-commit consumer: {}", e.getMessage(), e);
