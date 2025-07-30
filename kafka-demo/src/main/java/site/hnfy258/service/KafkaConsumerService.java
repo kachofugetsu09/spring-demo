@@ -42,7 +42,7 @@ public class KafkaConsumerService {
 
             // 日志输出
             if (currentCount % 100 == 0) {
-                log.info("Auto-commit Consumer received {} messages. Last message ID: {}", currentCount, userBehavior.getMessageId());
+//                log.info("Auto-commit Consumer received {} messages. Last message ID: {}", currentCount, userBehavior.getMessageId());
             }
 
         } catch (Exception e) {

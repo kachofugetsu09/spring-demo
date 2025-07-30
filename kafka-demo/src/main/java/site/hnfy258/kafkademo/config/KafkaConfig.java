@@ -112,10 +112,10 @@ public class KafkaConfig {
             site.hnfy258.service.RebalanceObserverService rebalanceObserverService) {
         ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(rebalanceDemoConsumerFactory());
-        
+
         // 设置再平衡监听器
         factory.getContainerProperties().setConsumerRebalanceListener(rebalanceObserverService);
-        
+
         return factory;
     }
 }

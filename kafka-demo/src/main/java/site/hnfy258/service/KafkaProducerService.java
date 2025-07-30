@@ -72,11 +72,11 @@ public class KafkaProducerService {
                         log.info("Sent {} messages.", messageCount);
                     }
 
-                    TimeUnit.MILLISECONDS.sleep(100);
+//                    TimeUnit.MILLISECONDS.sleep(100);
                 }
-            }catch (InterruptedException e){
-                log.info("Producer thread interrupted, stopping...");
-                Thread.currentThread().interrupt();
+//            }catch (InterruptedException e){
+//                log.info("Producer thread interrupted, stopping...");
+//                Thread.currentThread().interrupt();
             }catch (Exception e){
                 log.error("Error in Kafka producer thread: {}", e.getMessage(), e);
             }

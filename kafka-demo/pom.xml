@@ -27,11 +27,9 @@
             <artifactId>spring-kafka</artifactId>
         </dependency>
 
-        <!-- Kafka Streams -->
-        <dependency>
-            <groupId>org.apache.kafka</groupId>
-            <artifactId>kafka-streams</artifactId>
-        </dependency>
+
+
+
 
         <!-- JSON处理 -->
         <dependency>
@@ -58,6 +56,11 @@
             <groupId>org.springframework.kafka</groupId>
             <artifactId>spring-kafka-test</artifactId>
             <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka-streams</artifactId>
         </dependency>
 
         <!-- Validation -->
