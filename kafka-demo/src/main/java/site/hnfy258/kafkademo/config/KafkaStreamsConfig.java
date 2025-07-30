@@ -93,7 +93,7 @@ public class KafkaStreamsConfig {
                         userBehavior)) // 将 item_id 作为新的 Key
                 .groupByKey(Grouped.with(Serdes.String(), userBehaviorJsonSerde)) // 按 item_id 分组，指定序列化器
                 .windowedBy(TimeWindows.ofSizeWithNoGrace(Duration.ofSeconds(5))) // 设置 5 秒的滚动时间窗口
-                .count(Materialized.as("item-view-counts-store")) // 计数，并将状态存储在名为 "item-view-counts-store" 的状态存储中
+                .count(Materialized.as("item-view-counts-store")) // 计数
                 .toStream() // 将 KTable 转换回 KStream
                 .map((windowedKey, count) -> {
                     String itemId = windowedKey.key();

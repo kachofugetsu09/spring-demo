@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文章点赞测试页面</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .section {
+            margin-bottom: 40px;
+        }
+        
+        .section h2 {
+            color: #555;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .article-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .article-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            background: #fafafa;
+            transition: transform 0.2s;
+        }
+        
+        .article-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .article-title {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        
+        .article-info {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+        
+        .like-btn {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+            margin-right: 10px;
+        }
+        
+        .like-btn:hover {
+            background: linear-gradient(45deg, #ee5a24, #ff6b6b);
+            transform: scale(1.05);
+        }
+        
+        .like-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .control-panel {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+        
+        .btn:hover {
+            background: #0056b3;
+        }
+        
+        .btn-success {
+            background: #28a745;
+        }
+        
+        .btn-success:hover {
+            background: #1e7e34;
+        }
+        
+        .btn-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+        
+        .btn-warning:hover {
+            background: #e0a800;
+        }
+        
+        .status {
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+        
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        .ranking-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        .ranking-table th,
+        .ranking-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .ranking-table th {
+            background: #f8f9fa;
+            font-weight: bold;
+            color: #495057;
+        }
+        
+        .ranking-table tr:hover {
+            background: #f5f5f5;
+        }
+        
+        .rank-number {
+            font-weight: bold;
+            color: #007bff;
+        }
+        
+        .like-count {
+            color: #28a745;
+            font-weight: bold;
+        }
+        
+        .auto-test-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .auto-test-controls input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 80px;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #007bff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 文章点赞系统测试</h1>
+        
+        <!-- 统计信息 -->
+        <div class="section">
+            <h2>📊 实时统计</h2>
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalLikes">0</div>
+                    <div class="stat-label">总点赞数</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="successRate">0%</div>
+                    <div class="stat-label">成功率</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="avgResponseTime">0ms</div>
+                    <div class="stat-label">平均响应时间</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 文章列表 -->
+        <div class="section">
+            <h2>📝 文章列表 (共5篇)</h2>
+            <div class="article-grid" id="articleGrid">
+                <!-- 文章卡片将通过JavaScript动态生成 -->
+            </div>
+        </div>
+        
+        <!-- 控制面板 -->
+        <div class="section">
+            <h2>🎮 测试控制面板</h2>
+            <div class="control-panel">
+                <button class="btn" onclick="randomLike()">🎲 随机点赞</button>
+                <button class="btn" onclick="testKafka()">🧪 测试Kafka</button>
+                <button class="btn btn-success" onclick="refreshRanking()">🔄 刷新排行榜</button>
+                <button class="btn btn-warning" onclick="clearStatus()">🧹 清空状态</button>
+            </div>
+            
+            <div class="auto-test-controls">
+                <span>自动测试:</span>
+                <input type="number" id="autoCount" value="10" min="1" max="100" placeholder="次数">
+                <input type="number" id="autoInterval" value="1000" min="100" max="5000" placeholder="间隔(ms)">
+                <button class="btn" onclick="startAutoTest()" id="autoTestBtn">▶️ 开始自动测试</button>
+                <button class="btn" onclick="stopAutoTest()" id="stopAutoBtn" style="display:none;">⏹️ 停止测试</button>
+            </div>
+        </div>
+        
+        <!-- 状态显示 -->
+        <div id="statusContainer"></div>
+        
+        <!-- 排行榜 -->
+        <div class="section">
+            <h2>🏆 文章点赞排行榜</h2>
+            <div id="rankingContainer">
+                <p>点击"刷新排行榜"查看最新数据...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 文章数据 (对应init.sql中的5篇文章)
+        const articles = [
+            { id: 1, title: 'Spring Boot 最佳实践', author: 'admin' },
+            { id: 2, title: 'Kafka Streams 入门指南', author: 'admin' },
+            { id: 3, title: 'Redis 缓存策略详解', author: 'user' },
+            { id: 4, title: '微服务架构设计原则', author: 'user' },
+            { id: 5, title: 'Docker 容器化部署实战', author: 'manager' }
+        ];
+        
+        // 统计数据
+        let stats = {
+            totalLikes: 0,
+            totalRequests: 0,
+            successCount: 0,
+            totalResponseTime: 0
+        };
+        
+        // 自动测试相关
+        let autoTestInterval = null;
+        let autoTestCount = 0;
+        let autoTestMax = 0;
+        
+        // API基础URL
+        const API_BASE = 'http://localhost:8081/api/articles';
+        
+        // 初始化页面
+        function initPage() {
+            renderArticles();
+            updateStats();
+        }
+        
+        // 渲染文章列表
+        function renderArticles() {
+            const grid = document.getElementById('articleGrid');
+            grid.innerHTML = articles.map(article => `
+                <div class="article-card">
+                    <div class="article-title">${article.title}</div>
+                    <div class="article-info">ID: ${article.id} | 作者: ${article.author}</div>
+                    <button class="like-btn" onclick="likeArticle(${article.id})" id="btn-${article.id}">
+                        ❤️ 点赞文章
+                    </button>
+                    <span id="count-${article.id}" class="like-count">点赞数: -</span>
+                </div>
+            `).join('');
+            
+            // 获取每篇文章的点赞数
+            articles.forEach(article => {
+                getLikeCount(article.id);
+            });
+        }
+        
+        // 点赞文章
+        async function likeArticle(articleId) {
+            const btn = document.getElementById(`btn-${articleId}`);
+            const startTime = Date.now();
+            
+            btn.disabled = true;
+            btn.innerHTML = '❤️ 点赞中... <span class="loading"></span>';
+            
+            try {
+                stats.totalRequests++;
+                
+                const response = await fetch(`${API_BASE}/${articleId}/like`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const responseTime = Date.now() - startTime;
+                stats.totalResponseTime += responseTime;
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    stats.successCount++;
+                    stats.totalLikes++;
+                    showStatus(`✅ 文章 ${articleId} 点赞成功! 用户ID: ${data.userId} (${responseTime}ms)`, 'success');
+                    
+                    // 更新点赞数显示
+                    setTimeout(() => getLikeCount(articleId), 500);
+                } else {
+                    showStatus(`❌ 文章 ${articleId} 点赞失败: ${data.message} (${responseTime}ms)`, 'error');
+                }
+                
+            } catch (error) {
+                const responseTime = Date.now() - startTime;
+                stats.totalResponseTime += responseTime;
+                showStatus(`💥 请求失败: ${error.message} (${responseTime}ms)`, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '❤️ 点赞文章';
+                updateStats();
+            }
+        }
+        
+        // 获取文章点赞数
+        async function getLikeCount(articleId) {
+            try {
+                const response = await fetch(`${API_BASE}/${articleId}/likes/count`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById(`count-${articleId}`).textContent = `点赞数: ${data.likeCount}`;
+                }
+            } catch (error) {
+                console.error(`获取文章 ${articleId} 点赞数失败:`, error);
+            }
+        }
+        
+        // 随机点赞
+        function randomLike() {
+            const randomArticleId = articles[Math.floor(Math.random() * articles.length)].id;
+            likeArticle(randomArticleId);
+        }
+
+        // 测试Kafka消息发送
+        async function testKafka() {
+            const randomArticleId = articles[Math.floor(Math.random() * articles.length)].id;
+            
+            try {
+                const response = await fetch(`${API_BASE}/${randomArticleId}/test-kafka`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showStatus(`🧪 Kafka测试成功! 文章ID: ${data.articleId}, 用户ID: ${data.userId}`, 'success');
+                } else {
+                    showStatus(`❌ Kafka测试失败: ${data.message}`, 'error');
+                }
+                
+            } catch (error) {
+                showStatus(`💥 Kafka测试请求失败: ${error.message}`, 'error');
+            }
+        }
+        
+        // 刷新排行榜
+        async function refreshRanking() {
+            const container = document.getElementById('rankingContainer');
+            container.innerHTML = '<p>🔄 正在加载排行榜数据...</p>';
+            
+            try {
+                const response = await fetch(`${API_BASE}/ranking?limit=10`);
+                const data = await response.json();
+                
+                if (data.success && data.rankings.length > 0) {
+                    const tableHtml = `
+                        <p><strong>时间窗口:</strong> ${data.timeWindow}</p>
+                        <table class="ranking-table">
+                            <thead>
+                                <tr>
+                                    <th>排名</th>
+                                    <th>文章ID</th>
+                                    <th>文章标题</th>
+                                    <th>点赞数</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${data.rankings.map((item, index) => {
+                                    const article = articles.find(a => a.id == item.articleId);
+                                    return `
+                                        <tr>
+                                            <td class="rank-number">#${index + 1}</td>
+                                            <td>${item.articleId}</td>
+                                            <td>${article ? article.title : '未知文章'}</td>
+                                            <td class="like-count">${item.likeCount}</td>
+                                        </tr>
+                                    `;
+                                }).join('')}
+                            </tbody>
+                        </table>
+                    `;
+                    container.innerHTML = tableHtml;
+                    showStatus(`📊 排行榜刷新成功，共 ${data.rankings.length} 条记录`, 'success');
+                } else {
+                    container.innerHTML = '<p>📭 暂无排行榜数据，请先进行一些点赞操作</p>';
+                    showStatus('ℹ️ 暂无排行榜数据', 'info');
+                }
+                
+            } catch (error) {
+                container.innerHTML = '<p>❌ 加载排行榜失败</p>';
+                showStatus(`💥 获取排行榜失败: ${error.message}`, 'error');
+            }
+        }
+        
+        // 开始自动测试
+        function startAutoTest() {
+            const count = parseInt(document.getElementById('autoCount').value) || 10;
+            const interval = parseInt(document.getElementById('autoInterval').value) || 1000;
+            
+            autoTestMax = count;
+            autoTestCount = 0;
+            
+            document.getElementById('autoTestBtn').style.display = 'none';
+            document.getElementById('stopAutoBtn').style.display = 'inline-block';
+            
+            showStatus(`🚀 开始自动测试: ${count} 次点赞，间隔 ${interval}ms`, 'info');
+            
+            autoTestInterval = setInterval(() => {
+                if (autoTestCount >= autoTestMax) {
+                    stopAutoTest();
+                    return;
+                }
+                
+                autoTestCount++;
+                randomLike();
+                
+                if (autoTestCount % 5 === 0) {
+                    showStatus(`🔄 自动测试进度: ${autoTestCount}/${autoTestMax}`, 'info');
+                }
+                
+            }, interval);
+        }
+        
+        // 停止自动测试
+        function stopAutoTest() {
+            if (autoTestInterval) {
+                clearInterval(autoTestInterval);
+                autoTestInterval = null;
+            }
+            
+            document.getElementById('autoTestBtn').style.display = 'inline-block';
+            document.getElementById('stopAutoBtn').style.display = 'none';
+            
+            showStatus(`⏹️ 自动测试已停止 (${autoTestCount}/${autoTestMax})`, 'info');
+        }
+        
+        // 显示状态消息
+        function showStatus(message, type = 'info') {
+            const container = document.getElementById('statusContainer');
+            const statusDiv = document.createElement('div');
+            statusDiv.className = `status ${type}`;
+            statusDiv.innerHTML = `${new Date().toLocaleTimeString()} - ${message}`;
+            
+            container.insertBefore(statusDiv, container.firstChild);
+            
+            // 限制状态消息数量
+            const statusMessages = container.querySelectorAll('.status');
+            if (statusMessages.length > 10) {
+                statusMessages[statusMessages.length - 1].remove();
+            }
+        }
+        
+        // 清空状态
+        function clearStatus() {
+            document.getElementById('statusContainer').innerHTML = '';
+            showStatus('🧹 状态已清空', 'info');
+        }
+        
+        // 更新统计信息
+        function updateStats() {
+            document.getElementById('totalLikes').textContent = stats.totalLikes;
+            
+            const successRate = stats.totalRequests > 0 ? 
+                Math.round((stats.successCount / stats.totalRequests) * 100) : 0;
+            document.getElementById('successRate').textContent = successRate + '%';
+            
+            const avgResponseTime = stats.totalRequests > 0 ? 
+                Math.round(stats.totalResponseTime / stats.totalRequests) : 0;
+            document.getElementById('avgResponseTime').textContent = avgResponseTime + 'ms';
+        }
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', initPage);
+        
+        // 定期刷新点赞数
+        setInterval(() => {
+            articles.forEach(article => {
+                getLikeCount(article.id);
+            });
+        }, 10000); // 每10秒刷新一次
+    </script>
+</body>
+</html>

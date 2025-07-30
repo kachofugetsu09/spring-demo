@@ -56,6 +56,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/register").permitAll()
                         .requestMatchers("/api/auth/login").permitAll()
                         .requestMatchers("/api/auth/refresh").permitAll()
+                        .requestMatchers("/api/articles/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/public/**").permitAll()
                         .requestMatchers("/api/test/public").permitAll()
@@ -63,6 +64,9 @@ public class SecurityConfig {
                         .requestMatchers("/simple", "/simple-register").permitAll()
                         .requestMatchers("/health").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        // 添加文章点赞和排行榜接口的公开访问权限
+                        .requestMatchers("/api/articles/*/like").permitAll()
+                        .requestMatchers("/api/articles/ranking").permitAll()
                         .anyRequest().authenticated());
 
         http.authenticationProvider(authenticationProvider());

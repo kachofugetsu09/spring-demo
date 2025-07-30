@@ -87,3 +87,37 @@ INSERT INTO user_roles (user_id, role_id) VALUES
     (2, 2), -- user用户分配USER角色
     (3, 3)  -- manager用户分配MANAGER角色
 ON DUPLICATE KEY UPDATE user_id = VALUES(user_id);
+
+
+CREATE TABLE articles (
+                          id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '文章ID',
+                          title VARCHAR(255) NOT NULL COMMENT '文章标题',
+                          content TEXT COMMENT '文章内容',
+                          author_id BIGINT NOT NULL COMMENT '作者ID',
+                          publish_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '发布时间',
+                          INDEX idx_publish_time (publish_time),
+                          INDEX idx_author_id (author_id)
+) COMMENT '文章表';
+
+
+CREATE TABLE article_likes (
+                               id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '点赞记录ID',
+                               article_id BIGINT NOT NULL COMMENT '被点赞的文章ID',
+                               user_id BIGINT NOT NULL COMMENT '点赞用户ID',
+                               like_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '点赞时间',
+                               INDEX idx_article_id (article_id),
+                               INDEX idx_like_time (like_time),
+                               UNIQUE KEY uk_article_user (article_id, user_id)
+) COMMENT '文章点赞表';
+
+-- 插入5个默认文章
+INSERT INTO articles (title, content, author_id) VALUES 
+    ('Spring Boot 最佳实践', 'Spring Boot 是一个优秀的Java框架，本文介绍其最佳实践...', 1),
+    ('Kafka Streams 入门指南', 'Apache Kafka Streams 是一个强大的流处理库...', 1),
+    ('Redis 缓存策略详解', 'Redis 作为内存数据库，在缓存场景中有着广泛应用...', 2),
+    ('微服务架构设计原则', '微服务架构是现代应用开发的重要模式...', 2),
+    ('Docker 容器化部署实战', 'Docker 容器技术为应用部署带来了革命性变化...', 3)
+ON DUPLICATE KEY UPDATE 
+    title = VALUES(title),
+    content = VALUES(content),
+    author_id = VALUES(author_id);
